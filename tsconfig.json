@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    "rootDir": "src/typescript",
+    "outDir": "build/typescript",
+    // "module": "esnext",
+    "module": "commonjs",
+    "target": "es5",
+    "lib": ["es6", "dom"],
+    "moduleResolution": "node",
+    "sourceMap": true,
+    "allowJs": false,
+    "jsx": "react",
+    "forceConsistentCasingInFileNames": true,
+    "noEmitOnError": true,
+    "strict": true,
+    "noImplicitReturns": true,
+    // "noUnusedLocals": true,
+    "suppressImplicitAnyIndexErrors": true
+  },
+  "exclude": [
+    "node_modules",
+    "build"
+  ]
+}

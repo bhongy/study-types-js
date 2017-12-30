@@ -1,0 +1,16 @@
+[version]
+0.62.0
+
+[ignore]
+<PROJECT_ROOT>/node_modules/.*
+<PROJECT_ROOT>/build/.*
+
+[include]
+
+[libs]
+
+[options]
+esproposal.class_instance_fields=enable
+esproposal.class_static_fields=enable
+suppress_comment=\\(.\\|\n\\)*\\$FlowExpectError
+suppress_comment=\\(.\\|\n\\)*\\$FlowFixMe

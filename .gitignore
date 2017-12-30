@@ -1,0 +1,6 @@
+.DS_Store
+npm-debug.log*
+node_modules/
+node_modules.tar.gz
+yarn-error.log
+build/
