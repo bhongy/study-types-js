@@ -1,0 +1,161 @@
+/* at facebook/flow aea3635e9 */
+
+// 1) NaN is globally available
+// 2) it is a type number
+declare var NaN: number;
+declare var Infinity: number;
+// this is why passing undefined matches void
+declare var undefined: void;
+
+// 1) mixed not any
+// 2) NaN is just a type number
+declare function parseInt(string: mixed, radix?: number): number;
+declare function parseFloat(string: mixed): number;
+// isNaN coerce argument to a number first (+args[0]) then check
+// if it is a NaN
+declare function isNaN(number: mixed): boolean;
+// isFinite is false only for Infinite, -Infinite, NaN
+declare function isFinite(number: mixed): boolean;
+declare function decodeURI(encodedURI: string): string;
+declare function decodeURIComponent(encodedURIComponent: string): string;
+declare function encodeURI(uri: string): string;
+declare function encodeURIComponent(uriComponent: string): string;
+
+type PropertyDescriptor =
+  | {
+      configurable: boolean,
+      enumerable: boolean,
+      get(): any,
+      set(val: any): void,
+    }
+  | {
+      configurable: boolean,
+      enumerable: boolean,
+      value: any,
+      writable: boolean,
+    };
+
+declare class Object {
+  // Object() or Object(undefined) -> {}
+  static (o: ?void): {[key: any]: any};
+  // Object(true) -> Boolean {true} (object wrapper, not literal)
+  static (o: boolean): Boolean;
+  static (o: number): Number;
+  static (o: string): String;
+  static <T: Object>(o: T): T;
+  static assign: Object$Assign;
+  // could these typed better (instead of any)?
+  static create(o: any, properties?: any): any;
+  static defineProperties(o: any, properties: any): any;
+  static defineProperty(o: any, p: any, attributes: any): any;
+  static entries(o: any): Array<[string, mixed]>;
+  // is function overload possible in Flow?
+  // static entries<T>(o: { [s: string | number]: T }): Array<[string, T]>;
+  // static entries(o: any): Array<[string, mixed]>;
+  static freeze<T>(o: T): T;
+  // static freeze<T: {}>(o: T): $Readonly<T>;
+  static getOwnPropertyDescriptor(o: any, p: any): any;
+  // static getOwnPropertyDescriptor(o: any, p: string | number): PropertyDescriptor | void;
+  static getOwnPropertyNames(o: any): Array<string>;
+  static getOwnPropertySymbols(o: any): Array<Symbol>;
+  static getPrototypeOf: Object$GetPrototypeOf;  // flow internal (ML)
+  static is(a: any, b: any): boolean;
+  static isExtensible(o: any): boolean;
+  static isFrozen(o: any): boolean;
+  static isSealed(o: any): boolean;
+  static keys(o: any): Array<string>;
+  static preventExtensions(o: any): any;
+  static seal(o: any): any;
+  static setPrototypeOf(o: any, proto: ?Object): any;
+  static values(object: any): Array<mixed>;
+
+  // it does take anything as prop key
+  // return false if it's not a valid string/number
+  // number key gets converted to string first so
+  // both 1, '1' will result to true for { 1: 10 }
+  hasOwnProperty(prop: any): boolean;
+  isPrototypeOf(o: any): boolean;
+  propertyIsEnumerable(prop: any): boolean;
+  toLocaleString(): string;
+  toString(): string;
+  valueOf(): Object;
+
+  // takes anything as key but they'll get converted to string first
+  // e.g. passing any object literals and you'll always get [object Object]
+  [key: any]: any;
+}
+
+// I don't understand Symbols
+declare class Symbol {
+  static (value?: any): Symbol;
+  static for(key: string): Symbol;
+  // ...
+  static length: 0;
+  toString(): string;
+  valueOf(): ?Symbol; // why nullable?
+}
+
+declare class Function {
+  apply: Function$Prototype$Apply; // (thisArg: any, argArray?: any) => any
+  // should returned a new, bounded function ...
+  bind: Function$Prototype$Bind; // (thisArg: any, ...argArray: Array<any>) => any;
+  call: Function$Prototype$Call;
+  arguments: any; // type better?
+  caller: Function | null;
+  length: number;
+  name: string;
+  // [key: any]: any;
+}
+
+declare class Boolean {
+  static (value: any): boolean;
+  constructor(value?: mixed): void; // Boolean object wrapper
+  toString(): string;
+  valueOf(): number;
+}
+
+type Number$LocaleOptions = {
+    localeMatcher?: 'best fit' | 'lookup',
+    style?: 'decimal' | 'currency' | 'percent',
+    currency?: string,
+    currencyDisplay?: 'symbol' | 'code' | 'name',
+    useGrouping?: boolean,
+    minimumIntegerDigits?: number,
+    minimumFractionDigits?: number,
+    maximumFractionDigits?: number,
+    minimumSignificantDigits?: number,
+    maximumSignificantDigits?: number,
+};
+
+declare class Number {
+  static EPSILON: number;
+  static MAX_SAFE_INTEGER: number;
+  static MAX_VALUE: number;
+  static MIN_SAFE_INTEGER: number;
+  static MIN_VALUE: number;
+  static NaN: number;
+  static NEGATIVE_INFINITY: number;
+  static POSITIVE_INFINITY: number;
+  // cast to number - NaN for anything that cannot be converted
+  // (NaN is also a number)
+  // same as `+(value)` (Unary plus operator)
+  static (value: any): number;
+  static isFinite(value: any): boolean;
+  static isInteger(value: any): boolean;
+  static isNaN(value: any): boolean;
+  static isSafeInteger(value: any): boolean;
+  static parseFloat(value: string): number;
+  static parseInt(value: string, radix?: number): number;
+
+  constructor(value?: mixed): void; // Number object wrapper
+  // to{x} methods return string representation of the number
+  toExponential(fractionDigits?: number): string;
+  toFixed(fractionDigits?: number): string;
+  toLocaleString(
+    locales?: string | Array<string>,
+    options?: Number$LocaleOptions
+  ): string;
+  toPrecision(precision?: number): string;
+  toString(radix?: number): string;
+  valueOf(): number;
+}
