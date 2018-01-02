@@ -4,9 +4,9 @@ declare type React$Node =
   | boolean
   | number
   | string
-  // | React$Element<any>
-  // | React$Portal
-  // | Iterable<React$Node>
+  | React$Element<any>
+  | React$Portal
+  | Iterable<React$Node>; // why Iterable instead of Array?
 
 declare class React$Component<Props, State = void> {
   props: Props;
@@ -60,7 +60,7 @@ declare class React$PureComponent<Props, State = void>
 }
 
 declare class LegacyReactComponent<Props, State>
-  extends React$COmponent<Props, State> {
+  extends React$Component<Props, State> {
   replaceState(state: State, callback?: () => void): void;
   isMounted(): boolean;
   props: Props;
@@ -89,6 +89,8 @@ declare type React$ElementType =
   // | React$StatelessFunctionalComponent<any>
   // | Class<React$Component<any, any>>;
 
+declare type React$Key = string | number;
+
 // declare type React$Elment<+ElementType: React$ElementType> = {|
 //   +type: ElementType,
 //   +props: React$ElementProps<ElementType>,
@@ -96,4 +98,99 @@ declare type React$ElementType =
 //   +ref: any,
 // |};
 
-declare type React$Key = string | number;
+// declare type React$Ref<ElementType: React$ElementType> =
+//   | (React$ElementRef<ElementType> | null) => mixed
+//   | string;
+
+// React$Portal is internal (ML)
+declare opaque type React$Portal;
+
+// you have to import * as React from 'react' to get these types
+// then use them like: `React.Node`
+// or import type { Node } from 'react'
+declare module react {
+  declare export var DOM: any;
+  declare export var version: string;
+
+  declare export function initializeTouchEvents(shouldUseTouch: boolean): void;
+  declare export function isValidElement(element: any): boolean;
+  declare export function checkPropTypes<V>(
+    propTypes: $Subtype<{[_: $Keys<V>]: ReactPropsCheckType}>,
+    values: V,
+    location: string,
+    componentName: string,
+    getStack: ?(() => ?string),
+  ): void;
+
+  // these types are internal (ML)
+  declare export var createClass: React$CreateClass; // legacy
+  declare export var createElement: React$CreateElement;
+  declare export var cloneElement: React$CloneElement;
+  declare export function createFactory<ElementType: React$ElementType>( // legacy
+    type: ElementType,
+  ): React$ElementFactory<ElementType>;
+
+  declare export var Component: typeof React$Component;
+  declare export var PureComponent: typeof React$PureComponent;
+  // export type aliases
+  declare export type StatelessFunctionalComponent<P> =
+    React$StatelessFunctionalComponent<P>;
+  declare export type ComponentType<P> = React$ComponentType<P>;
+  declare export type ElementType = React$ElementType;
+  declare export type Element<C> = React$Element<C>;
+  // declare export var Fragment: <T: React$Node>({ children: T }) => T;
+  // declare export var Fragment: ({ children: React$Node }) => React$Node;
+  declare export type Key = React$Key;
+  // declare export type Ref<C> = React$Ref<C>;
+  declare export type Node = React$Node;
+  declare export type Portal = React$Portal;
+
+  // ChildrenArray is either an array of type T (can be nested, type recursive)
+  // or just the type T
+  // see ./sandbox.js for examples
+  declare export type ChildrenArray<+T> = $ReadOnlyArray<ChildrenArray<T>> | T;
+  // $NonMaybeType<T> (ML) acts as the type T without null and void
+  declare export var Children: {
+    map<T, U>(
+      children: ChildrenArray<T>,
+      // why needing $NonMaybeType here?
+      // implementation skips null and undefined ?
+      fn: (child: $NonMaybeType<T>, index: number) => U,
+      thisArg?: mixed,
+    // This return type might be wrong. The implementation in
+    // `ReactChildren.js -> mapChildren` return `children`
+    // if it's null or undefined
+    ): Array<$NonMaybeType<U>>;
+    forEach<T>(
+      children: ChildrenArray<T>,
+      fn: (child: T, index: number) => mixed,
+      thisArg?: mixed,
+    ): void;
+    count(children: ChildrenArray<any>): number;
+    // only<T>(children: ChildrenArray<T>): $NonMaybeType<T>;
+    // toArray<T>(children: ChildrenArray<T>): Array<$NonMaybeType<T>>;
+  }
+
+  // this is what you get when import React from 'react'
+  declare export default {|
+    +DOM: typeof DOM,
+    // +PropTypes: typeof PropTypes,
+    +createClass: typeof createClass, // legacy
+    +createElement: typeof createElement,
+    +cloneElement: typeof cloneElement,
+    +createFactory: typeof createFactory, // legacy
+    +isValidElement: typeof isValidElement,
+    +Component: typeof Component,
+    +PureComponent: typeof PureComponent,
+    +Children: typeof Children,
+  |};
+}
+
+// local
+
+type ReactPropsCheckType = (
+  props: any,
+  propName: string,
+  componentName: string,
+  href?: string,
+) => ?Error;
