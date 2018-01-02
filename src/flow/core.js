@@ -21,19 +21,21 @@ declare function decodeURIComponent(encodedURIComponent: string): string;
 declare function encodeURI(uri: string): string;
 declare function encodeURIComponent(uriComponent: string): string;
 
-type PropertyDescriptor =
-  | {
-      configurable: boolean,
-      enumerable: boolean,
-      get(): any,
-      set(val: any): void,
-    }
-  | {
-      configurable: boolean,
-      enumerable: boolean,
-      value: any,
-      writable: boolean,
-    };
+interface DataDescriptor {
+  configurable: boolean;
+  enumerable: boolean;
+  value?: any,
+  writable?: boolean,
+}
+
+interface AccessorDescriptor {
+  configurable: boolean;
+  enumerable: boolean;
+  get?(): any;
+  set?(val: any): void;
+}
+
+type PropertyDescriptor = DataDescriptor | AccessorDescriptor;
 
 declare class Object {
   // Object() or Object(undefined) -> {}
