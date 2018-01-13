@@ -96,3 +96,53 @@ function interfaceStructuralTypeExample() {
   // $FlowExpectError: classes are nominally typed
   const foo2: Bar = new Foo();
 }
+
+
+/**
+ * Using readonly to safely subtype a variable referencing the same object
+ */
+
+// just create scope to prevent name clashes between examples
+function readonlyTypeExample() {
+  type A = { foo: number, bar: number };
+  type B = { foo: number | string };
+  type C = { +foo: number | string };
+
+  const a: A = { foo: 1, bar: 2 };
+  // Below fails because we can mutate `b`
+  // e.g. `b.foo = 'now it is string';`
+  // and which also changes `a.foo` to a string (fail the type check)
+  // $FlowExpectError
+  const b: B = a;
+  // This passes because we won't change `c.foo`
+  const c: C = a;
+}
+
+
+/**
+ * Example of Flow asserting object type with width subtyping
+ * i.e. allowing trying to access extra props (e.g. "colour")
+ * (should still be type safe though)
+ */
+
+// just create scope to prevent name clashes between examples
+function flowObjectWidthSubtypingExample() {
+  interface SquareConfig {
+    color?: string;
+    width?: number;
+  }
+
+  function createSquare(config: SquareConfig): { color: string; area: number } {
+    const newSquare = { color: 'white', area: 100 };
+    if (config.color) {
+      newSquare.color = config.color;
+    }
+    if (config.width) {
+      newSquare.area = config.width * config.width;
+    }
+    return newSquare;
+  }
+
+  const mySquare = createSquare({ color: 'black' });
+  const mySquare2 = createSquare({ colour: 'black' });
+}
