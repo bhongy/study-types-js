@@ -1,3 +1,13 @@
+/* at facebook/flow c7771d0 */
+
+/**
+ * Open Questions
+ * ---
+ * 1) $React$Element<+ElementType: ...> or ChildrenArray<+T>
+ * 2) export Children -> map ... $NonMaybeType
+ * 3) $Subtype vs $Supertype vs $Shape
+ */
+
 declare type React$Node =
   | void
   | null
@@ -6,7 +16,7 @@ declare type React$Node =
   | string
   | React$Element<any>
   | React$Portal
-  | Iterable<React$Node>; // why Iterable instead of Array?
+  | Iterable<React$Node>; // Iterable -> string, Array, Map, Set
 
 declare class React$Component<Props, State = void> {
   props: Props;
@@ -76,6 +86,8 @@ declare type React$StatelessFunctionalComponent<Props> = {
 };
 
 // custom components <MyComponent />
+// these are functions/classes hence `Class<...>`
+// `React$Component` refers to the instance not the class
 declare type React$ComponentType<Props> =
   | React$StatelessFunctionalComponent<Props>
   | Class<React$Component<Props, any>>;
@@ -91,16 +103,17 @@ declare type React$ElementType =
 
 declare type React$Key = string | number;
 
-// declare type React$Elment<+ElementType: React$ElementType> = {|
-//   +type: ElementType,
-//   +props: React$ElementProps<ElementType>,
-//   +key: React$Key | null,
-//   +ref: any,
-// |};
+declare type React$Elment<+ElementType: React$ElementType> = {|
+  +type: ElementType,
+  +props: React$ElementProps<ElementType>,
+  +key: React$Key | null,
+  +ref: any,
+|};
 
-// declare type React$Ref<ElementType: React$ElementType> =
-//   | (React$ElementRef<ElementType> | null) => mixed
-//   | string;
+// React$ElementRef is internal (ML)
+declare type React$Ref<ElementType: React$ElementType> =
+  | ((React$ElementRef<ElementType> | null) => mixed)
+  | string;
 
 // React$Portal is internal (ML)
 declare opaque type React$Portal;
@@ -110,6 +123,7 @@ declare opaque type React$Portal;
 // or import type { Node } from 'react'
 declare module react {
   declare export var DOM: any;
+  declare export var PropTypes: ReactPropTypes;
   declare export var version: string;
 
   declare export function initializeTouchEvents(shouldUseTouch: boolean): void;
@@ -141,9 +155,14 @@ declare module react {
   // declare export var Fragment: <T: React$Node>({ children: T }) => T;
   // declare export var Fragment: ({ children: React$Node }) => React$Node;
   declare export type Key = React$Key;
-  // declare export type Ref<C> = React$Ref<C>;
+  declare export type Ref<C> = React$Ref<C>;
   declare export type Node = React$Node;
   declare export type Portal = React$Portal;
+
+  // these types are internal (ML)
+  declare export type ElementProps<C> = React$ElementProps<C>;
+  declare export type ElementConfig<C> = React$ElementConfig<C>;
+  declare export type ElementRef<C> = React$ElementRef<C>;
 
   // ChildrenArray is either an array of type T (can be nested, type recursive)
   // or just the type T
@@ -167,14 +186,17 @@ declare module react {
       thisArg?: mixed,
     ): void;
     count(children: ChildrenArray<any>): number;
-    // only<T>(children: ChildrenArray<T>): $NonMaybeType<T>;
-    // toArray<T>(children: ChildrenArray<T>): Array<$NonMaybeType<T>>;
+    only<T>(children: ChildrenArray<T>): $NonMaybeType<T>;
+    toArray<T>(children: ChildrenArray<T>): Array<$NonMaybeType<T>>;
   }
 
   // this is what you get when import React from 'react'
   declare export default {|
     +DOM: typeof DOM,
-    // +PropTypes: typeof PropTypes,
+    +PropTypes: typeof PropTypes,
+    +version: typeof version,
+    +initializeTouchEvents: typeof initializeTouchEvents,
+    +checkPropTypes: typeof checkPropTypes,
     +createClass: typeof createClass, // legacy
     +createElement: typeof createElement,
     +cloneElement: typeof cloneElement,
@@ -194,3 +216,21 @@ type ReactPropsCheckType = (
   componentName: string,
   href?: string,
 ) => ?Error;
+
+type ReactPropTypes = {
+  array: React$PropType$Primitive<Array<any>>;
+  bool: React$PropType$Primitive<boolean>;
+  func: React$PropType$Primitive<Function>;
+  number: React$PropType$Primitive<number>;
+  object: React$PropType$Primitive<Object>;
+  string: React$PropType$Primitive<string>;
+  any: React$PropType$Primitive<any>;
+  arrayOf: React$PropType$ArrayOf;
+  element: React$PropType$Primitive<any>; /* TODO */
+  instanceOf: React$PropType$InstanceOf;
+  node: React$PropType$Primitive<any>; /* TODO */
+  objectOf: React$PropType$ObjectOf;
+  oneOf: React$PropType$OneOf;
+  oneOfType: React$PropType$OneOfType;
+  shape: React$PropType$Shape;
+};
