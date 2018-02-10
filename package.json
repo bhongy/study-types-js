@@ -7,7 +7,7 @@
   "license": "MIT",
   "private": true,
   "devDependencies": {
-    "flow-bin": "^0.62.0",
+    "flow-bin": "0.65.0",
     "prettier": "^1.9.2",
     "typescript": "^2.6.2"
   }
