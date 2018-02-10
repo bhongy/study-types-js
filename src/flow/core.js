@@ -1,4 +1,4 @@
-/* at facebook/flow aea3635e9 */
+/* at facebook/flow c7771d0 */
 
 // 1) NaN is globally available
 // 2) it is a type number
@@ -113,7 +113,7 @@ declare class Boolean {
   static (value: any): boolean;
   constructor(value?: mixed): void; // Boolean object wrapper
   toString(): string;
-  valueOf(): number;
+  valueOf(): boolean;
 }
 
 type Number$LocaleOptions = {
@@ -293,9 +293,157 @@ declare class $ReadOnlyArray<+T, I: number> {
   +length: number; // do not allow changing length or empty array
 }
 
-// declare class Array<T> extends $ReadOnlyArray<T> {
-//
-// }
+declare class Array<T, I: number> extends $ReadOnlyArray<T, I> {
+  forEach(
+    callbackfn: (value: T, index: I, array: Array<T>) => any,
+    thisArg?: any,
+  ): void;
+  map<U>(
+    callbackfn: (value: T, index: I, array: Array<T>) => U,
+    thisArg?: any,
+  ): Array<U>;
+  reduce(
+    callbackfn: (previousValue: T, currentValue: T, currentIndex: I, array<T>) => T,
+    initialValue: void,
+  ): T;
+  reduce<U>(
+    callbackfn: (previousValue: U, currentValue: T, currentIndex: I, array<T>) => U,
+    initialValue: U,
+  ): U;
+  ): Array<U>;
+  reduceRight(
+    callbackfn: (previousValue: T, currentValue: T, currentIndex: I, array<T>) => T,
+    initialValue: void,
+  ): T;
+  reduceRight<U>(
+    callbackfn: (previousValue: U, currentValue: T, currentIndex: I, array<T>) => U,
+    initialValue: U,
+  ): U;
+  filter(
+    callbackfn: typeof Boolean
+  ): Array<$NonMaybeType<T>>;
+  filter(
+    callbackfn: (value: T, index: I, array<T>) => any,
+    thisArg?: any,
+  ): Array<T>;
+  every(
+    predicate: (value: T, index: I, array: Array<T>) => any,
+    thisArg?: any,
+  ): boolean;
+  some(
+    predicate: (value: T, index: I, array: Array<T>) => any,
+    thisArg?: any,
+  ): boolean;
+
+  find(
+    callbackfn: (value: T, index: I, array: Array<T>) => any,
+    thisArg?: any,
+  ): T | void;
+  findIndex(
+    callbackfn: (value: T, index: number, array: Array<T>) => any,
+    thisArg?: any,
+  ): I;
+
+  copyWithin(target: I, start: I, end?: I): Array<T>;
+  // this is correct. remember - we're working with Array of type T
+  fill(value: T, begin?: I, end?: I): Array<T>;
+  pop(): T; // shouldn't it be ?T ... [].pop() -> undefined
+  push(...items: Array<T>): number; // return length
+  reverse(): Array<T>;
+  shift(): T;
+  sort(compareFn?: (a: T, b: T) => number): Array<T>;
+  splice(start: I, deleteCount?: number, ...items: Array<T>): Array<T>;
+  unshift(...items: Array<T>): number; // return length
+
+  [key: I]: T;
+  length: number;
+  static (...values: Array<any>): Array<any>;
+  static of(...values: Array<any>): Array<any>;
+  static isArray(obj: any): boolean;
+  static from<A, B>(
+    iter: Iterable<A> | Iterator<A>,
+    mapFn: (value: A, index: I) => B,
+    thisArg?: any,
+  ): Array<B>;
+  static from<A>(
+    iter: Iterable<A> | Iterator<A>,
+    mapFn: void,
+  ): Array<A>;
+  static from<A>(
+    arrayLike: { length: number },
+    mapFn: (value: void, index: I) => A,
+    thisArg?: any,
+  ): Array<A>;
+  static from<A>(
+    arrayLike: { length: number },
+    mapFn: void,
+  ): Array<void>;
+}
+
+declare class String {
+
+}
+
+declare class CallSite {
+  getThis(): any;
+  getTypeName(): string;
+  getFunction(): ?Function;
+  getFunctionName(): string;
+  getMethodName(): string;
+  getFileName(): ?string;
+  getLineNumber(): ?number;
+  getColumnNumber(): ?number;
+  getEvalOrigin(): ?CallSite;
+  getScriptNameOrSourceURL(): ?string;
+  isToplevel(): bool;
+  isEval(): bool;
+  isNative(): bool;
+  isConstructor(): bool;
+  toString(): string;
+}
+
+declare class Error {
+  static (message?: string): Error;
+  constructor(message?: mixed): void;
+  name: string;
+  message: string;
+  stack: string;
+  toString(): string;
+
+  // note: microsoft only
+  description?: string;
+  number?: number;
+
+  // note: mozilla only
+  filename?: string;
+  lineNumber?: number;
+  columnNumber?: number;
+
+  // note: v8 only (node/chrome)
+  static captureStackTrace(target: Object, constructor?: Function): void;
+
+  static stackTraceLimit: number;
+  static prepareStackTrace: (err: Error, stack: CallSite[]) => mixed;
+}
+
+declare class EvalError extends Error {}
+declare class RangeError extends Error {}
+declare class ReferenceError extends Error {}
+declare class SyntaxError extends Error {}
+declare class TypeError extends Error {}
+declare class URIError extends Error {}
+
+declare class JSON {
+  static parse(
+    text: string,
+    reviver?: (key: any, value: any) => any,
+  ): any;
+  static stringify(
+    value: any,
+    replacer?: ?((key: string, value: any) => any) | Array<any>,
+    space?: string | number,
+  ): string;
+}
 
 // the Iterator/Generator interfaces are typed so well <3
 
@@ -310,7 +458,7 @@ interface $Iterator<+Yield, +Return, -Next> {
 type Iterator<+T> = $Iterator<T, void, void>;
 
 interface $Iterable<+Yield, +Return, -Next> {
-  @@iterator(): $Iterator<Yield,Return,Next>;
+  @@iterator(): $Iterator<Yield, Return, Next>;
 }
 type Iterable<+T> = $Iterable<T, void, void>;
 

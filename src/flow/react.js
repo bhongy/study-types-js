@@ -16,7 +16,7 @@ declare type React$Node =
   | string
   | React$Element<any>
   | React$Portal
-  | Iterable<React$Node>; // Iterable -> string, Array, Map, Set
+  | Iterable<React$Node>; // Iterables -> String, Array, TypedArray, Map, Set
 
 declare class React$Component<Props, State = void> {
   props: Props;

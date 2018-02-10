@@ -146,3 +146,45 @@ function flowObjectWidthSubtypingExample() {
   const mySquare = createSquare({ color: 'black' });
   const mySquare2 = createSquare({ colour: 'black' });
 }
+
+/**
+ * Example typing a function with Rest Parameter
+ * Showing that zero or single argument is valid
+ * (type check with Array<T>)
+ */
+
+// just create scope to prevent name clashes between examples
+function restParameterExample() {
+  function method(...args: Array<number>) {}
+
+  method();        // Works.
+  method(1);       // Works.
+  method(1, 2);    // Works.
+  method(1, 2, 3); // Works.
+}
+
+type React$StatelessFunctionalComponent<Props> = (props: Props, context: any) => React$Node;
+
+function classUtilityTypeExample() {
+  class Cat {}
+  const cat: typeof Cat = Cat;
+  const kitty: Class<Cat> = Cat;
+
+  function Dog() {}
+  const dog: typeof Dog = Dog;
+  // $FlowExpectError
+  const puppy: Class<Dog> = Dog;
+}
+
+type A = { foo: number, bar: string };
+// const a: $Shape<A> = { foo: 1, bar: 1 };
+
+// class Foo {
+//   constructor(v: number) {
+//     return 'foo';
+//   }
+// }
+function Foo(v: number): string { return 'foo'; }
+function Bar(v: number): string { return 'bar'; }
+
+const Baz: typeof Foo = (v: number) => '';
