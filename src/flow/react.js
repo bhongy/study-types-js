@@ -78,7 +78,6 @@ declare class LegacyReactComponent<Props, State>
 }
 
 declare type React$StatelessFunctionalComponent<Props> = {
-  // better type instead of React$Element<any> -> React$Element<Props>?
   (props: Props, context: any): React$Node,
   displayName?: ?string,
   propTypes?: $Subtype<{[_: $Keys<Props>]: any}>,
@@ -151,9 +150,8 @@ declare module react {
     React$StatelessFunctionalComponent<P>;
   declare export type ComponentType<P> = React$ComponentType<P>;
   declare export type ElementType = React$ElementType;
-  declare export type Element<C> = React$Element<C>;
-  // declare export var Fragment: <T: React$Node>({ children: T }) => T;
-  // declare export var Fragment: ({ children: React$Node }) => React$Node;
+  declare export type Element<+C> = React$Element<C>;
+  declare export function Fragment <T: React$Node>({ children: T }): T;
   declare export type Key = React$Key;
   declare export type Ref<C> = React$Ref<C>;
   declare export type Node = React$Node;
@@ -216,6 +214,31 @@ type ReactPropsCheckType = (
   componentName: string,
   href?: string,
 ) => ?Error;
+
+type ReactPropsChainableTypeChecker = {
+  (
+    props: any,
+    propName: string,
+    componentName: string,
+    href?: string,
+  ): ?Error,
+  isRequired: ReactPropsCheckType,
+}
+
+type React$PropTypes$arrayOf =
+  (typeChecker: ReactPropsCheckType) => ReactPropsChainableTypeChecker;
+type React$PropTypes$instanceOf =
+  (expectedClass: any) => ReactPropsChainableTypeChecker;
+type React$PropTypes$objectOf =
+  (typeChecker: ReactPropsCheckType) => ReactPropsChainableTypeChecker;
+type React$PropTypes$oneOf =
+  (expectedValues: Array<any>) => ReactPropsChainableTypeChecker;
+type React$PropTypes$oneOfType =
+  (arrayOfTypeCheckers: Array<ReactPropsCheckType>) =>
+    ReactPropsChainableTypeChecker;
+type React$PropTypes$shape =
+  (shapeTypes: { [key: string]: ReactPropsCheckType }) =>
+    ReactPropsChainableTypeChecker;
 
 type ReactPropTypes = {
   array: React$PropType$Primitive<Array<any>>;
