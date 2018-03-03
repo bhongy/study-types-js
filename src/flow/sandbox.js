@@ -163,8 +163,6 @@ function restParameterExample() {
   method(1, 2, 3); // Works.
 }
 
-type React$StatelessFunctionalComponent<Props> = (props: Props, context: any) => React$Node;
-
 function classUtilityTypeExample() {
   class Cat {}
   const cat: typeof Cat = Cat;
@@ -176,15 +174,49 @@ function classUtilityTypeExample() {
   const puppy: Class<Dog> = Dog;
 }
 
-type A = { foo: number, bar: string };
-// const a: $Shape<A> = { foo: 1, bar: 1 };
+function usingTypeofWithFunctions() {
+  function Foo(v: number): string { return 'foo'; }
+  function Bar(v: number): string { return 'bar'; }
+  function Baz(v: number) { return 'baz'; }
 
-// class Foo {
-//   constructor(v: number) {
-//     return 'foo';
-//   }
-// }
-function Foo(v: number): string { return 'foo'; }
-function Bar(v: number): string { return 'bar'; }
+  // input, output types match the definition - structurally typed
+  const FakeFoo: typeof Foo = (v: number) => '';
+  // $FlowExpectError: output type doesn't match Bar: (number) => string
+  const FakeBar: typeof Bar = (v: number) => null;
+  // Untyped returned type so flow infer that this is fine.
+  const FakeBaz: typeof Baz = (v: number) => null;
+}
 
-const Baz: typeof Foo = (v: number) => '';
+function objectShapeAndExact() {
+  // extra stuff is fine
+  ({ foo: 'a', bar: 2 }: { foo: string });
+  // $FlowExpectError: extra stuff is not cool with $Shape
+  ({ foo: 'a', bar: 2 }: $Shape<{ foo: string }>);
+  // missing stuff is fine with $Shape
+  ({}: $Shape<{ foo: string }>);
+  // $FlowExpectError: extra stuff is not cool with $Exact
+  ({ foo: 'a', bar: 2 }: $Exact<{ foo: string }>);
+  // $FlowExpectError: missing stuff is not cool with $Exact
+  ({}: $Exact<{ foo: string }>);
+}
+
+function genericsForClassAndFunctionsAreInferred() {
+  // Function generic
+  const foo = <T>(v: T): [T, string] => ([v, JSON.stringify(v)]);
+  const f1 = foo(10);
+  const f2 = foo({ fizz: 'buzz' });
+
+  // Class generic
+  class Bar<T> {
+    store: T;
+    constructor(v: T) {
+      this.store = v;
+    }
+  }
+  // param `T` of `Bar<T>` is inferred from the constructor
+  const o = new Bar(100);
+  // `T` is number - inferred and specified types are matched
+  ((v: Bar<number>): number => v.store)(o); // this is just an IIFE
+  // $FlowExpectError: `T` number is incompatible with string
+  ((v: Bar<string>): string => v.store)(o);
+}
