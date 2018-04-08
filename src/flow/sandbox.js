@@ -228,3 +228,38 @@ function genericsForClassAndFunctionsAreInferred() {
   // $FlowExpectError: `T` number is incompatible with string
   ((v: Bar<string>): string => v.store)(o);
 }
+
+/**
+ * Example typing React higher-order components
+ */
+
+function reactHocExamples() {
+  // -- map props
+
+  // idea from recompose: https://github.com/acdlite/recompose/blob/b3c743cd8dd38ba71d7c9a9e14c89c54ec30a41f/src/packages/recompose/mapProps.js
+  function mapProps<InputProps: {}, MappedProps: {}>(
+    propsMapper: (props: InputProps) => MappedProps
+  ): (
+    BaseComponent: React.ComponentType<MappedProps>
+  ) => React.ComponentType<InputProps> {
+    return BaseComponent => {
+      const factory = React.createFactory(BaseComponent);
+      return props => factory(propsMapper(props));
+    };
+  }
+
+  // -- inject props
+
+  class Logger { /* implementation */ }
+
+  // Note: `{ logger: Logger | void }` needs `| void` because if `logger`
+  // doesn't exist in `Props` (inferred) it will be an error (can't diff)
+  // using optional prop `{ logger?: Logger }` is incorrect
+  function withLogger<Props: {}>(
+    BaseComponent: React.ComponentType<Props>
+  ): React.ComponentType<$Diff<Props, { logger: Logger | void }>> {
+    const logger = new Logger();
+    const factory = React.createFactory(BaseComponent);
+    return props => factory({ logger, ...props });
+  }
+}
