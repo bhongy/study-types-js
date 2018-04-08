@@ -12,15 +12,15 @@ import * as React from 'react';
 function exhaustiveCheckingExample() {
   type State = { +value: boolean };
   type Action =
-    | { type: "FOO", foo: boolean }
-    | { type: "BAR", bar: boolean }
-    | { type: "BAZ", baz: boolean };
+    | { type: 'FOO', foo: boolean }
+    | { type: 'BAR', bar: boolean }
+    | { type: 'BAZ', baz: boolean };
 
   function reducer(state: State, action: Action): State {
     switch (action.type) {
-      case "FOO":
+      case 'FOO':
         return { ...state, value: action.foo };
-      case "BAR":
+      case 'BAR':
         return { ...state, value: action.bar };
       default:
         // $FlowExpectError: unhandled action type "BAZ"
@@ -30,24 +30,21 @@ function exhaustiveCheckingExample() {
   }
 }
 
-
 type Point = { x: number, y: number };
 const origin: $ReadOnly<Point> = { x: 0, y: 0 };
 // origin.x = 1;
-
 
 /**
  * Type InjectProp React Higher-order Component
  */
 
 function injectProp<Props: {}>(
-  Component: React.ComponentType<Props>,
+  Component: React.ComponentType<Props>
 ): React.ComponentType<$Diff<Props, { foo: number | void }>> {
   return function WrapperComponent(props: Props) {
     return <Component {...props} foo={42} />;
   };
 }
-
 
 /**
  * React.ChildrenArray behavior
@@ -72,7 +69,6 @@ function childArrayExample() {
   ([<div />, [<div />]]: React.ChildrenArray<React.Element<'div'>>);
 }
 
-
 /**
  * Structurally Typing between class instances and objects using interface
  * ---
@@ -86,8 +82,16 @@ function interfaceStructuralTypeExample() {
     method(value: string): void;
   }
 
-  class Foo implements MyInterface { method(input: string) { /* ... */ } }
-  class Bar implements MyInterface { method(input: string) { /* ... */ } }
+  class Foo implements MyInterface {
+    method(input: string) {
+      /* ... */
+    }
+  }
+  class Bar implements MyInterface {
+    method(input: string) {
+      /* ... */
+    }
+  }
 
   const foo: MyInterface = new Foo();
   const bar: MyInterface = new Bar();
@@ -96,7 +100,6 @@ function interfaceStructuralTypeExample() {
   // $FlowExpectError: classes are nominally typed
   const foo2: Bar = new Foo();
 }
-
 
 /**
  * Using readonly to safely subtype a variable referencing the same object
@@ -118,7 +121,6 @@ function readonlyTypeExample() {
   const c: C = a;
 }
 
-
 /**
  * Example of Flow asserting object type with width subtyping
  * i.e. allowing trying to access extra props (e.g. "colour")
@@ -132,7 +134,7 @@ function flowObjectWidthSubtypingExample() {
     width?: number;
   }
 
-  function createSquare(config: SquareConfig): { color: string; area: number } {
+  function createSquare(config: SquareConfig): { color: string, area: number } {
     const newSquare = { color: 'white', area: 100 };
     if (config.color) {
       newSquare.color = config.color;
@@ -157,9 +159,9 @@ function flowObjectWidthSubtypingExample() {
 function restParameterExample() {
   function method(...args: Array<number>) {}
 
-  method();        // Works.
-  method(1);       // Works.
-  method(1, 2);    // Works.
+  method(); // Works.
+  method(1); // Works.
+  method(1, 2); // Works.
   method(1, 2, 3); // Works.
 }
 
@@ -175,9 +177,15 @@ function classUtilityTypeExample() {
 }
 
 function usingTypeofWithFunctions() {
-  function Foo(v: number): string { return 'foo'; }
-  function Bar(v: number): string { return 'bar'; }
-  function Baz(v: number) { return 'baz'; }
+  function Foo(v: number): string {
+    return 'foo';
+  }
+  function Bar(v: number): string {
+    return 'bar';
+  }
+  function Baz(v: number) {
+    return 'baz';
+  }
 
   // input, output types match the definition - structurally typed
   const FakeFoo: typeof Foo = (v: number) => '';
@@ -202,7 +210,7 @@ function objectShapeAndExact() {
 
 function genericsForClassAndFunctionsAreInferred() {
   // Function generic
-  const foo = <T>(v: T): [T, string] => ([v, JSON.stringify(v)]);
+  const foo = <T>(v: T): [T, string] => [v, JSON.stringify(v)];
   const f1 = foo(10);
   const f2 = foo({ fizz: 'buzz' });
 
